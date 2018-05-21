@@ -15,7 +15,7 @@ namespace Seismograph
         private string yColor;
         private string zColor;
         private string snapshotColor;
-        private List<string> licenses;
+        private int logSize = 60 * 5; // 5 minutes
 
         public const string RemoveAdsProductId = "RemoveAdsId";
 
@@ -37,7 +37,6 @@ namespace Seismograph
             YColor = "Green";
             ZColor = "#FF0A3B9D";
             SnapshotColor = "DarkGray";
-            licenses= new List<string>();
         }
 
         private static Settings instance;
@@ -168,11 +167,19 @@ namespace Seismograph
             }
         }
 
-        public List<string> Licenses
+        public int LogSize
         {
-            get { return licenses; }
-            set { licenses = value; }
+            get { return this.logSize; }
+            set
+            {
+                if (this.logSize != value)
+                {
+                    this.logSize = value;
+                    OnChanged();
+                }
+            }
         }
+        
 
     }
 

@@ -36,25 +36,33 @@ namespace Seismograph
         bool loaded;
         Accelerometer sensor;
         bool paused;
-        DispatcherTimer timer;
+        Model model = new Model();
+        DateTimeOffset? startTime;
+
         public MainPage()
         {
             paused = true;
             InitializeComponent();
-            this.SizeChanged += MainPage_SizeChanged;
+
+            ChartX.ValueFilter = new ValuePredicate((e) => { return e is Acceleration; });
+            ChartX.ValueGetter = new ValueGetter((e) => { return ((Acceleration)e).X; });
+            ChartX.Model = model;
+
+            ChartY.ValueFilter = new ValuePredicate((e) => { return e is Acceleration; });
+            ChartY.ValueGetter = new ValueGetter((e) => { return ((Acceleration)e).Y; });
+            ChartY.Model = model;
+
+            ChartZ.ValueFilter = new ValuePredicate((e) => { return e is Acceleration; });
+            ChartZ.ValueGetter = new ValueGetter((e) => { return ((Acceleration)e).Z; });
+            ChartZ.Model = model;
         }
 
-        void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-        }
-        
         private void ShowDebugMessage(string msg)
         {
 #if DEBUG
             //ShowErrorMessage(msg);
 #endif
         }
-
 
         public void OnVisibilityChanged(bool visible)
         {
@@ -76,7 +84,7 @@ namespace Seismograph
             if (!paused)
             {
                 paused = true;
-                CheckTimer();
+                StartStopCharts();
                 StopAccelerometer();
             }
         }
@@ -87,8 +95,7 @@ namespace Seismograph
             {
                 paused = false;
                 SetupAccelerometer();
-                StartTimer();
-                CheckTimer();
+                StartStopCharts();
                 SetColors();
             }
         }
@@ -108,38 +115,24 @@ namespace Seismograph
 
             loaded = true;
 
-            // now we have the colors we can load the series and start the timer.
             Start();
 
             base.OnNavigatedTo(e);
         }
 
-        private void StartTimer()
+        private void StartStopCharts()
         {
-            timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(reportInterval);
-            timer.Tick += OnTick;
-            timer.Stop();
-        }
-
-        private void CheckTimer()
-        {
-            if (timer != null)
+            if (!paused)
             {
-                if (!paused)
-                {
-                    timer.Start();
-                    ChartX.Start();
-                    ChartY.Start();
-                    ChartZ.Start();
-                }
-                else
-                {
-                    timer.Stop();
-                    ChartX.Stop();
-                    ChartY.Stop();
-                    ChartZ.Stop();
-                }
+                ChartX.Start();
+                ChartY.Start();
+                ChartZ.Start();
+            }
+            else
+            {
+                ChartX.Stop();
+                ChartY.Stop();
+                ChartZ.Stop();
             }
         }
 
@@ -147,11 +140,6 @@ namespace Seismograph
         {
             // colors may have changed, so pass new colors through to the graph controls.
             SetColors();
-
-            if (timer != null)
-            {
-                timer.Interval = TimeSpan.FromMilliseconds(Settings.Instance.Interval);
-            }
             if (sensor != null)
             {
                 sensor.ReportInterval = Settings.Instance.Interval;
@@ -165,30 +153,16 @@ namespace Seismograph
             ChartZ.Stroke = new SolidColorBrush(Colors.ParseColor(Settings.Instance.ZColor).Color);
         }
 
-        // this contain the last accelerometer reading.
-        double x;
-        double y;
-        double z;
-
-        private void OnTick(object sender, object e)
-        {
-            CheckOrientation();
-            ChartX.SetCurrentValue(x);
-            ChartY.SetCurrentValue(y);
-            ChartZ.SetCurrentValue(z);
-        }
-
         // give orientation lock 5 seconds delay
-        int startTime;
         bool orientationLocked;
 
         private void CheckOrientation()
         {
-            if (startTime == 0)
+            if (!startTime.HasValue)
             {
-                startTime = Environment.TickCount;
+                // do nothing
             }
-            else if (!orientationLocked && startTime + 5000 < Environment.TickCount)
+            else if (!orientationLocked && DateTimeOffset.Now - startTime.Value > TimeSpan.FromSeconds(5))
             {
                 LockOrientation();
             }
@@ -211,8 +185,9 @@ namespace Seismograph
             ChartX.Clear();
             ChartY.Clear();
             ChartZ.Clear();
-            x = y = z = 0;
+            model.Clear();
             SetColors();
+            startTime = null;
         }
 
         private void SetupAccelerometer()
@@ -223,6 +198,7 @@ namespace Seismograph
             }
             catch
             {
+
             }
             if (sensor == null)
             {
@@ -255,9 +231,15 @@ namespace Seismograph
         {
             if (!paused)
             {
-                x = args.Reading.AccelerationX;
-                y = args.Reading.AccelerationY;
-                z = args.Reading.AccelerationZ + 1;  // reverse gravity to make graph look balanced.
+                if (!startTime.HasValue)
+                {
+                    startTime = args.Reading.Timestamp;
+                }
+                long t = (long)((args.Reading.Timestamp - startTime.Value).TotalMilliseconds);
+                double x = args.Reading.AccelerationX;
+                double y = args.Reading.AccelerationY;
+                double z = args.Reading.AccelerationZ + 1;  // reverse gravity to make graph look balanced.
+                model.AddAccel(t, x, y, z);
             }
         }
 
@@ -267,13 +249,13 @@ namespace Seismograph
             paused = true;
             PauseButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             PlayButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            CheckTimer();
+            StartStopCharts();
         }
 
         private void OnPlayClick(object sender, RoutedEventArgs e)
         {
             paused = false;
-            CheckTimer();
+            StartStopCharts();
             PauseButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
             PlayButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
         }
@@ -302,6 +284,9 @@ namespace Seismograph
 
         async void SaveSnapshot(string fileName)
         {
+            bool saved = this.paused;
+            this.paused = true;
+            this.StartStopCharts();
             Exception error = null;
             try
             {
@@ -339,10 +324,12 @@ namespace Seismograph
             {
                 error = ex;
             }
+            this.paused = saved;
             if (error != null)
             {
                 await ShowError(error.Message, AppResources.ErrorSavingSnapshotCaption);
             }
+            this.StartStopCharts();
         }
 
         private async Task ShowError(string message, string title)
@@ -354,16 +341,17 @@ namespace Seismograph
 
         private async void OnSaveClick(object sender, RoutedEventArgs e)
         {
+            bool saved = this.paused;
+            this.paused = true;
+            this.StartStopCharts();
             Exception error = null;
             try
             {
-                XDocument doc = GetDataAsXml();
-
                 var savePicker = new Windows.Storage.Pickers.FileSavePicker();
 
                 savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
                 // Dropdown of file types the user can save the file as
-                savePicker.FileTypeChoices.Add("XML Files", new List<string>() { ".xml" });
+                savePicker.FileTypeChoices.Add("CSV Files", new List<string>() { ".csv" });
                 savePicker.SuggestedFileName = AppResources.DefaultDataFileName;
 
                 StorageFile file = await savePicker.PickSaveFileAsync();
@@ -371,10 +359,9 @@ namespace Seismograph
                 {
                     using (var fileStream = await file.OpenStreamForWriteAsync())
                     {
-                        XmlWriterSettings settings = new XmlWriterSettings() { Indent = true };
-                        using (var writer = XmlWriter.Create(fileStream, settings))
+                        using (var writer = new StreamWriter(fileStream))
                         {
-                            doc.WriteTo(writer);
+                            model.WriteTo(writer);
                         }
                     }
                 }
@@ -383,28 +370,12 @@ namespace Seismograph
             {
                 error = ex;
             }
+            this.paused = saved;
             if (error != null)
             {
                 await ShowError(error.Message, AppResources.ErrorSavingSnapshotCaption);
             }
-        }
-
-        private XDocument GetDataAsXml()
-        {
-            XDocument doc = new XDocument(new XElement("data"));
-            XElement root = doc.Root;
-
-            List<double> xdata = ChartX.History;
-            List<double> ydata = ChartY.History;
-            List<double> zdata = ChartZ.History;
-
-            int len = Math.Min(xdata.Count, Math.Min(ydata.Count, zdata.Count));
-            for (int i = 0; i < len; i++)
-            {
-                root.Add(new XElement("item", new XAttribute("x", xdata[i]), new XAttribute("y", ydata[i]), new XAttribute("z", zdata[i])));
-            }
-
-            return doc;
+            this.StartStopCharts();
         }
 
     }

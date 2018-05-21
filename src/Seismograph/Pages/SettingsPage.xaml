@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage
+﻿<Page
     x:Name="pageRoot"
     x:Class="Seismograph.SettingsPage"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
@@ -8,7 +8,6 @@
     xmlns:common="using:Seismograph.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    FontSize="20" FontWeight="Light"
     mc:Ignorable="d">
 
 
@@ -33,53 +32,63 @@
             <TextBlock x:Name="pageTitle" Grid.Column="1" Text="Settings" Style="{StaticResource SettingsHeaderTextStyle}"/>
         </Grid>
 
-        <Border BorderBrush="#00b2f0" BorderThickness="1,0,0,0"  Grid.Row="1" >
-            <Grid Margin="30">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <Border BorderBrush="#00b2f0" BorderThickness="1"  Grid.Row="1" >
+            <ScrollViewer VerticalScrollBarVisibility="auto">
+                <Grid Margin="30">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Text="X Color:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="10" />
+                    <TextBlock Text="X Color:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="10" />
 
-                <local:ColorPicker x:Name="ColorXPicker" Grid.Row="1"  HorizontalAlignment="Stretch"
+                    <local:ColorPicker x:Name="ColorXPicker" Grid.Row="1"  HorizontalAlignment="Stretch"
                                    UseLayoutRounding="True"   Margin="20,5"
                                    Header="X Color" />
 
-                <TextBlock Text="Y Color:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center"  Margin="10"/>
+                    <TextBlock Text="Y Color:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center"  Margin="10"/>
 
-                <local:ColorPicker x:Name="ColorYPicker" Grid.Row="3"  HorizontalAlignment="Stretch"
+                    <local:ColorPicker x:Name="ColorYPicker" Grid.Row="3"  HorizontalAlignment="Stretch"
                                    UseLayoutRounding="True"    Margin="20,5"
                                    Header="Y Color"  />
 
-                <TextBlock Text="Z Color:" Grid.Row="4" VerticalAlignment="Center"  Margin="10"/>
+                    <TextBlock Text="Z Color:" Grid.Row="4" VerticalAlignment="Center"  Margin="10"/>
 
-                <local:ColorPicker x:Name="ColorZPicker" Grid.Row="5"  HorizontalAlignment="Stretch"
+                    <local:ColorPicker x:Name="ColorZPicker" Grid.Row="5"  HorizontalAlignment="Stretch"
                                    UseLayoutRounding="True"   Margin="20,5"
                                    Header="Z Color" />
 
 
+                    <TextBlock Text="Interval (ms):" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center"  Margin="10"/>
 
-                <TextBlock Text="Interval (ms):" Grid.Row="6" Grid.Column="0" VerticalAlignment="Center"  Margin="10"/>
-
-                <TextBox x:Name="TextBoxInterval" Grid.Row="7"  HorizontalAlignment="Stretch"
+                    <TextBox x:Name="TextBoxInterval" Grid.Row="7"  HorizontalAlignment="Stretch"
                                    UseLayoutRounding="True"  Margin="10,0" InputScope="Number"
                                  >
-                </TextBox>
+                    </TextBox>
 
-            </Grid>
+                    <TextBlock Text="Maximum Log Size (seconds):" Grid.Row="8" Grid.Column="0" VerticalAlignment="Center"  Margin="10"/>
+
+                    <TextBox x:Name="TextBoxLogSize" Grid.Row="9"  HorizontalAlignment="Stretch"
+                                   UseLayoutRounding="True"  Margin="10,0" InputScope="Number"
+                                 >
+                    </TextBox>
+
+                </Grid>
+            </ScrollViewer>
         </Border>
 
         <VisualStateManager.VisualStateGroups>
@@ -112,4 +121,4 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
     </Grid>
-</common:LayoutAwarePage>
+</Page>

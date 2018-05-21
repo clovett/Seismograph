@@ -20,7 +20,7 @@ namespace Seismograph
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
-    public sealed partial class ColorPickerPage : Seismograph.Common.LayoutAwarePage
+    public sealed partial class ColorPickerPage : Page
     {
         LinearGradientBrush rainbow;
         bool pressed;

@@ -22,12 +22,9 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <local:ScrollingGraph x:Name="ChartX" Grid.Row="0" StrokeThickness="2" Stroke="#FF8080"   Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1" GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"
-                                  />
-            <local:ScrollingGraph x:Name="ChartY" Grid.Row="1" StrokeThickness="2" Stroke="#80FF80" Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1"  GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"
-                                  />
-            <local:ScrollingGraph x:Name="ChartZ" Grid.Row="2" StrokeThickness="2" Stroke="#8080FF"  Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1"  GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"
-                                  />
+            <local:ScrollingGraph x:Name="ChartX" Grid.Row="0" StrokeThickness="2" Stroke="#FF8080"   Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1" GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"/>
+            <local:ScrollingGraph x:Name="ChartY" Grid.Row="1" StrokeThickness="2" Stroke="#80FF80" Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1"  GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"/>
+            <local:ScrollingGraph x:Name="ChartZ" Grid.Row="2" StrokeThickness="2" Stroke="#8080FF"  Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1"  GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"/>
 
         </Grid>
 
@@ -38,13 +35,13 @@
         </Grid>
 
         <CommandBar Grid.Row="2">
-            <AppBarButton x:Name="SettingsButton" Style="{StaticResource SettingsAppBarButtonStyle}" Click="OnSettingsClick"/>
-            <AppBarButton x:Name="PlayButton" Style="{StaticResource PlayAppBarButtonStyle}" Click="OnPlayClick" Visibility="Collapsed"/>
-            <AppBarButton x:Name="PauseButton" Style="{StaticResource PauseAppBarButtonStyle}" Click="OnPauseClick"/>
-            <AppBarButton x:Name="ClearButton" Style="{StaticResource ClearAppBarButtonStyle}" Click="OnClearClick"/>
-            <AppBarButton x:Name="SaveButton" Style="{StaticResource SaveAppBarButtonStyle}" Click="OnSaveClick"/>
+            <AppBarButton x:Name="SettingsButton" Icon="Setting" Click="OnSettingsClick"/>
+            <AppBarButton x:Name="PlayButton" Icon="Play" Click="OnPlayClick" Visibility="Collapsed"/>
+            <AppBarButton x:Name="PauseButton" Icon="Pause" Click="OnPauseClick"/>
+            <AppBarButton x:Name="ClearButton" Icon="Clear" Click="OnClearClick"/>
+            <AppBarButton x:Name="SaveButton" Icon="Save" Click="OnSaveClick"/>
             <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="SnapshotButton" Style="{StaticResource PhotoAppBarButtonStyle}" Click="OnSnapshotClick"/>
+                <AppBarButton x:Name="SnapshotButton" Icon="Camera" Click="OnSnapshotClick"/>
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Grid>

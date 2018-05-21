@@ -20,8 +20,6 @@ namespace Seismograph
 {
     public partial class ScrollingGraph : UserControl
     {
-        List<double> pending = new List<double>();
-        List<double> history = new List<double>();
         List<Line> gridLines = new List<Line>();
         List<Path> lineGraphs = new List<Path>();
         List<Path> shadowLineGraphs = new List<Path>();
@@ -29,8 +27,6 @@ namespace Seismograph
         DispatcherTimer layoutTimer;
         bool scrollTimerStopped;
         DispatcherTimer scrollTimer;
-        double previousValue;
-        double currentValue;
         bool sizeChanged;
         Size graphSize;
         int layoutDelay = 30; // can't seem to update the Path object more frequently than this.
@@ -170,18 +166,6 @@ namespace Seismograph
         }
 
         /// <summary>
-        /// Set the current value that we are showing in the graph, this value will scroll across the screen at the
-        /// ScrollingSpeed until a new value is specified.  So the smoothness of the graph all depends on how quickly
-        /// you call this method.  
-        /// </summary>
-        /// <param name="value"></param>
-        public void SetCurrentValue(double value)
-        {
-            previousValue = currentValue;
-            currentValue = value;
-        }
-
-        /// <summary>
         /// Start scrolling the current values.
         /// </summary>
         public void Start()
@@ -209,7 +193,10 @@ namespace Seismograph
             StopScrollTimer();
         }
 
-
+        int GetScrollSpeed()
+        {
+            return Math.Max(1, this.ScrollSpeed);
+        }
 
         public int ScrollSpeed
         {
@@ -219,7 +206,7 @@ namespace Seismograph
 
         // Using a DependencyProperty as the backing store for ScrollSpeed.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ScrollSpeedProperty =
-            DependencyProperty.Register("ScrollSpeed", typeof(int), typeof(ScrollingGraph), new PropertyMetadata(0, new PropertyChangedCallback(OnScrollSpeedChanged)));
+            DependencyProperty.Register("ScrollSpeed", typeof(int), typeof(ScrollingGraph), new PropertyMetadata(30, new PropertyChangedCallback(OnScrollSpeedChanged)));
 
         private static void OnScrollSpeedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -237,7 +224,7 @@ namespace Seismograph
 
         private void StartScrollTimer()
         {
-            var scrollSpeed = Math.Max(1, this.ScrollSpeed);
+            var scrollSpeed = GetScrollSpeed();
             scrollTimerStopped = false;
             scrollTimer = new DispatcherTimer();
             scrollTimer.Interval = TimeSpan.FromMilliseconds(scrollSpeed);
@@ -284,7 +271,7 @@ namespace Seismograph
         {
             sizeChanged = true;
             graphSize = e.NewSize;
-            if (this.activeLineGraph != null && this.history.Count > 0)
+            if (this.activeLineGraph != null)
             {
                 UpdateChart();
             }
@@ -478,17 +465,9 @@ namespace Seismograph
             sizeChanged = true;
         }
 
-
-        /// <summary>
-        /// Get the recorded history of visible data values (unscaled).
-        /// (doesn't go back further than one screen)
-        /// </summary>
-        public List<double> History { get { return this.history; } }
-
         public void Clear()
         {
             Reset();
-            history.Clear();
         }
 
         void Reset()
@@ -545,11 +524,8 @@ namespace Seismograph
             }
             int now = Environment.TickCount;
 
-            pending.Add(currentValue);
-            history.Add(currentValue);
-
             if (totalX > graphSize.Width)
-            {                
+            {
                 foreach (Path p in this.lineGraphs.ToArray())
                 {
                     double x = Canvas.GetLeft(p) - 1;
@@ -583,34 +559,32 @@ namespace Seismograph
             UpdateChart();
         }
 
-        private List<double> Tail(List<double> list, int tailLength)
+        internal ValuePredicate ValueFilter { get; set; }
+
+        internal ValueGetter ValueGetter { get; set; }
+
+        public Model Model { get; set; }
+
+        private List<double> GetNewValues()
         {
-            var result = new List<double>();
-            int start = 0;
-            int len = this.history.Count;
-            if (len > tailLength)
-            {
-                start = len - tailLength;
-            }
-            for (int i = start; i < len; i++)
-            {
-                result.Add(history[i]);
-            }
-            return result;
+            return Model.Tail(1, this.layoutDelay, this.ValueFilter, this.ValueGetter);
+        }
+
+        private List<double> GetPageValues()
+        {
+            // get one page worth of values (enough to fill this.ActualWidth);
+            int size = (int)this.ActualWidth;
+            return Model.Tail(size, this.layoutDelay, this.ValueFilter, this.ValueGetter);
         }
 
         private void UpdateChart()
         {
-            double maxHorizontal = graphSize.Width;
-
-            List<double> values = this.pending;
-            this.pending = new List<double>();
-
+            List<double> values = GetNewValues();
             if (sizeChanged)
             {
                 Reset();
                 SetupGridLines();
-                values = Tail(this.history, (int)maxHorizontal);
+                values = GetPageValues();
                 sizeChanged = false;
             }
 
@@ -694,6 +668,7 @@ namespace Seismograph
                 path.Data = path.Data;
             }
         }
+
     }
 
     static class RectExtensions

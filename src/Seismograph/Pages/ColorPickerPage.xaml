@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage
+﻿<Page
     x:Name="pageRoot"
     x:Class="Seismograph.ColorPickerPage"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
@@ -57,4 +57,4 @@
                     HorizontalAlignment="Left" Fill="White"/>
         </Grid>
     </Grid>
-</common:LayoutAwarePage>
+</Page>

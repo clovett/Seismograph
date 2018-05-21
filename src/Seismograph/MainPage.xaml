@@ -20,7 +20,6 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <local:ScrollingGraph x:Name="ChartX" Grid.Row="0" StrokeThickness="2" Stroke="#FF8080"   Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1" GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"
@@ -30,13 +29,6 @@
             <local:ScrollingGraph x:Name="ChartZ" Grid.Row="2" StrokeThickness="2" Stroke="#8080FF"  Maximum="2" Minimum="-2" ShadowStroke="Black" ShadowDepth="2.1"  GridLines="5" GridLineStroke="#66666666" GridLineStrokeThickness="0.5"
                                   />
 
-            <!--<my:AdControl Name="adControl1" Width="480" Height="80" Grid.Row="3" 
-                          BorderThickness="0"
-                          Visibility="Collapsed"
-                          HorizontalAlignment="Right" VerticalAlignment="Top" 
-                          ApplicationId="63132b15-9f19-4322-bd46-f5de01dea4c8" 
-                          AdUnitId="10059001"/>-->
-
         </Grid>
 
         <Grid x:Name="MessagePanel" Visibility="Collapsed" Grid.Row="1"
@@ -45,24 +37,16 @@
                            TextWrapping="Wrap" Foreground="Gray"/>
         </Grid>
 
-        <AppBar x:Name="bottomAppBar" IsSticky="True" IsOpen="True" Grid.Row="3">
-            <Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10,0,10,0" >
-                    <Button x:Name="SettingsButton" Style="{StaticResource SettingsAppBarButtonStyle}" Click="OnSettingsClick"/>
-                    <Button x:Name="ClearButton" Style="{StaticResource ClearAppBarButtonStyle}" Click="OnClearClick"/>
-                    <Button x:Name="PlayButton" Style="{StaticResource PlayAppBarButtonStyle}" Click="OnPlayClick" Visibility="Collapsed"/>
-                    <Button x:Name="PauseButton" Style="{StaticResource PauseAppBarButtonStyle}" Click="OnPauseClick"/>
-                    <Button x:Name="SnapshotButton" Style="{StaticResource PhotoAppBarButtonStyle}" Click="OnSnapshotClick"/>
-                    <Button x:Name="SaveButton" Style="{StaticResource SaveAppBarButtonStyle}" Click="OnSaveClick"/>
-                </StackPanel>
-            </Grid>
-        </AppBar>
-
-
-        <Grid x:Name="AdContainer" Width="728" Height="90" HorizontalAlignment="Right"  VerticalAlignment="Bottom" 
-              Grid.Row="3" 
-                 />
-
+        <CommandBar Grid.Row="2">
+            <AppBarButton x:Name="SettingsButton" Style="{StaticResource SettingsAppBarButtonStyle}" Click="OnSettingsClick"/>
+            <AppBarButton x:Name="PlayButton" Style="{StaticResource PlayAppBarButtonStyle}" Click="OnPlayClick" Visibility="Collapsed"/>
+            <AppBarButton x:Name="PauseButton" Style="{StaticResource PauseAppBarButtonStyle}" Click="OnPauseClick"/>
+            <AppBarButton x:Name="ClearButton" Style="{StaticResource ClearAppBarButtonStyle}" Click="OnClearClick"/>
+            <AppBarButton x:Name="SaveButton" Style="{StaticResource SaveAppBarButtonStyle}" Click="OnSaveClick"/>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="SnapshotButton" Style="{StaticResource PhotoAppBarButtonStyle}" Click="OnSnapshotClick"/>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
     </Grid>
 
 </Page>

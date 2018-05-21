@@ -46,29 +46,8 @@ namespace Seismograph
 
         void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Size s = e.NewSize;
-            PositionAds(s);
-        }
-
-        void PositionAds(Size windowSize)
-        {
-            if (windowSize.Width > windowSize.Height)
-            {
-                Grid.SetRow(AdContainer, 3);
-                AdContainer.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Right;
-            }
-            else
-            {
-                Grid.SetRow(AdContainer, 0);
-                AdContainer.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
-            }
         }
         
-
-        private void UpdateLicenseUI()
-        {
-        }
-
         private void ShowDebugMessage(string msg)
         {
 #if DEBUG
@@ -278,7 +257,7 @@ namespace Seismograph
             {
                 x = args.Reading.AccelerationX;
                 y = args.Reading.AccelerationY;
-                z = args.Reading.AccelerationZ;
+                z = args.Reading.AccelerationZ + 1;  // reverse gravity to make graph look balanced.
             }
         }
 
